@@ -1,6 +1,6 @@
 # Compile
 ```
-go build
+go build machine_schedule.go
 ```
 # Execute
 ```
