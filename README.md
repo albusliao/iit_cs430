@@ -10,22 +10,6 @@ go build
 ```
 machine_num;job_num;job0_start_time,job0_end_time;job1_start_time,job2_start_time
 ```
-## example
-### input.txt
-3;6;0,3;4,5;1,3;2,4;5,6;2,4
-### output
-```
-machine[2]
-        job[3] 2  4
-machine[1]
-        job[2] 1  3
-        job[1] 4  5
-machine[0]
-        job[0] 0  3
-        job[4] 5  6
-job[5][2][4] miss 
-tatal job num[6] schedule[5] miss[1]
-```
 
 # Test1
 ## exec
@@ -34,7 +18,13 @@ tatal job num[6] schedule[5] miss[1]
 ```
 ## input file
 ```
-3;6;0,3;4,5;1,3;2,4;5,6;7,8
+3
+0 3
+4 5
+1 3
+2 4
+5 6
+7 8
 ```
 ## output
 ```
@@ -56,7 +46,11 @@ machine#2 has jobs:
 ```
 ## input
 ```
-2;4;0,2;1,4;1,7;2,8
+2
+0 2
+1 4
+1 7
+2 8
 ```
 ## output
 ```
@@ -76,7 +70,14 @@ Jobs not processed:
 ```
 ## input
 ```
-2;7;0,2;1,4;4,7;100,103;101,113;104,110;0,8
+2
+0 2
+1 4
+4 7
+100 103
+101 113
+104 110
+0 8
 ```
 ## output
 ``` 
@@ -100,7 +101,22 @@ Jobs not processed:
 ```
 ## input
 ```
-3;15;0,2;0,1;1,4;3,4;5,6;0,1;7,8;5,6;1,5;0,4;5,6;1,12;0,2;11,15;11,15
+3
+0 2
+0 1
+1 4
+3 4
+5 6
+0 1
+7 8
+5 6
+1 5
+0 4
+5 6
+1 12
+0 2
+11 15
+11 15
 ```
 ## output
 ```
