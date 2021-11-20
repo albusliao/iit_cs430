@@ -1,9 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"sort"
 	"strconv"
@@ -52,11 +53,6 @@ func (s *MachineSchedule) SortMachineListByMachineId(machineList []MachineInfo) 
 		}
 		return false
 	})
-	return nil
-}
-
-//read input data from file
-func (s *MachineSchedule) ReadFile() error {
 	return nil
 }
 
@@ -123,32 +119,33 @@ func main() {
 		panic(err)
 	}
 	defer file.Close()
-	content, err := ioutil.ReadAll(file)
-	input := strings.Split(strings.Trim(string(content), "\n"), ";")
-	if len(input) < 3 {
-		fmt.Printf("[%s] format error", string(content))
+	reader := bufio.NewReader(file)
+	line, _, err := reader.ReadLine()
+	if err == io.EOF {
+		fmt.Printf("read error:$s", err.Error())
 		return
 	}
-	machineNum, _ := strconv.Atoi(input[0])
-	jobNum, _ := strconv.Atoi(input[1])
-	if jobNum != len(input)-2 {
-		fmt.Printf("job num[%d] != job list num[%d]", jobNum, len(input)-2)
-		return
-	}
-
+	machineNum, _ := strconv.Atoi(string(line))
 	var jobList []Job
-	for i := 2; i < len(input); i++ {
-		job := Job{
-			JobId: i - 2,
+	jobNum := 0
+	for {
+		line, _, err = reader.ReadLine()
+		if err == io.EOF {
+			break
 		}
-		jobData := strings.Split(input[i], ",")
+		job := Job{
+			JobId: jobNum,
+		}
+		data := strings.Trim(string(line), "\n")
+		jobData := strings.Split(data, " ")
 		if len(jobData) != 2 {
-			fmt.Printf("job[%d][%s] format error", job.JobId, input[i])
-			return
+			fmt.Printf("job[%d][%s] format error", job.JobId, data)
+			continue
 		}
 		job.StartTime, _ = strconv.Atoi(jobData[0])
 		job.EndTime, _ = strconv.Atoi(jobData[1])
 		jobList = append(jobList, job)
+		jobNum++
 	}
 
 	var machineSchedule MachineSchedule
