@@ -11,6 +11,7 @@ import (
 	"strings"
 )
 
+//job info
 type Job struct {
 	JobId     int
 	StartTime int
@@ -18,6 +19,7 @@ type Job struct {
 	MachineId int
 }
 
+//machine info
 type MachineInfo struct {
 	MachineId  int
 	FinishTime int
@@ -27,6 +29,7 @@ type MachineInfo struct {
 type MachineSchedule struct {
 }
 
+//sort the job list by end time
 func (s *MachineSchedule) SortJobList(jobList []Job) error {
 	sort.SliceStable(jobList, func(i, j int) bool {
 		if jobList[i].EndTime < jobList[j].EndTime {
@@ -37,6 +40,7 @@ func (s *MachineSchedule) SortJobList(jobList []Job) error {
 	return nil
 }
 
+//sort the machine list by finish time
 func (s *MachineSchedule) SortMachineListByFinishTime(machineList []MachineInfo) error {
 	sort.SliceStable(machineList, func(i, j int) bool {
 		if machineList[i].FinishTime < machineList[j].FinishTime {
@@ -46,6 +50,8 @@ func (s *MachineSchedule) SortMachineListByFinishTime(machineList []MachineInfo)
 	})
 	return nil
 }
+
+//sort the machine list by machine id
 func (s *MachineSchedule) SortMachineListByMachineId(machineList []MachineInfo) error {
 	sort.SliceStable(machineList, func(i, j int) bool {
 		if machineList[i].MachineId < machineList[j].MachineId {
@@ -56,6 +62,7 @@ func (s *MachineSchedule) SortMachineListByMachineId(machineList []MachineInfo) 
 	return nil
 }
 
+//input machine num and job list, return machine schedule list
 func (s *MachineSchedule) Run(machineNum int, jobList []Job) (machineList []MachineInfo, err error) {
 	//sort jobs by end time, coat logn
 	_ = s.SortJobList(jobList)
@@ -67,18 +74,22 @@ func (s *MachineSchedule) Run(machineNum int, jobList []Job) (machineList []Mach
 		machineList[i].FinishTime = -1
 	}
 
+	//for all the job
 	for i, job := range jobList {
 		jobList[i].MachineId = -1
+		//get the first free machine
 		for j, machine := range machineList {
 			if machine.FinishTime < job.StartTime {
 				machineList[j].JobList = append(machineList[j].JobList, job)
 				machineList[j].FinishTime = job.EndTime
 				jobList[i].MachineId = machine.MachineId
+				//restore the machine
 				s.SortMachineListByFinishTime(machineList)
 				break
 			}
 		}
 	}
+	//finish. return the machine list bye machine id.
 	s.SortMachineListByMachineId(machineList)
 	return machineList, nil
 }
@@ -125,7 +136,11 @@ func main() {
 		fmt.Printf("read error:$s", err.Error())
 		return
 	}
+
+	//first line is machine num
 	machineNum, _ := strconv.Atoi(string(line))
+
+	//other lines are jobs
 	var jobList []Job
 	jobNum := 0
 	for {
@@ -148,6 +163,7 @@ func main() {
 		jobNum++
 	}
 
+	//run and get the result
 	var machineSchedule MachineSchedule
 	machineList, err := machineSchedule.Run(machineNum, jobList)
 	if err != nil {
@@ -155,6 +171,7 @@ func main() {
 		return
 	}
 
+	//print the machine & jobs
 	scheduleNum := 0
 	for _, machine := range machineList {
 		fmt.Printf("machine#%d has jobs:\n", machine.MachineId)
@@ -164,6 +181,7 @@ func main() {
 		}
 	}
 
+	//print the missed jobs
 	hasPrintHead := false
 	for _, job := range jobList {
 		if job.MachineId < 0 {
@@ -174,6 +192,6 @@ func main() {
 			fmt.Printf("(%d,%d)\n", job.StartTime, job.EndTime)
 		}
 	}
+	//result
 	fmt.Printf("[%d] number of jobs out of [%d] total jobs\n", scheduleNum, jobNum)
-
 }
